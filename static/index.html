@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Certificate Generator - Dashboard & API</title>
+  <meta name="description" content="Generate hundreds of professional vector PDF certificates asynchronously with isolated failure handling.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Navbar -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">📜</div>
+        <div>
+          <h1 class="logo-title">CertiForge</h1>
+          <p class="logo-subtitle">Bulk Certificate Generation & Verification System</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/docs" target="_blank" class="btn btn-secondary btn-sm" id="btn-swagger-docs">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Interactive API Docs
+        </a>
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span>API Online</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="tab-generate" id="tab-btn-generate">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        New Generation Job
+      </button>
+      <button class="tab-btn" data-tab="tab-monitor" id="tab-btn-monitor">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        Job Monitor & Downloads
+      </button>
+      <button class="tab-btn" data-tab="tab-verify" id="tab-btn-verify">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        Credential Verification
+      </button>
+    </nav>
+
+    <!-- Tab 1: Generate -->
+    <main id="tab-generate" class="tab-content active">
+      <div class="grid-layout">
+        <!-- Job Details Form -->
+        <section class="card">
+          <div class="card-header">
+            <h2>1. Certificate Job Details</h2>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-load-sample">
+              ⚡ Load Sample Batch
+            </button>
+          </div>
+          
+          <form id="job-form">
+            <div class="form-group">
+              <label for="input-title">Certificate Heading / Title</label>
+              <input type="text" id="input-title" value="Certificate of Completion" required placeholder="e.g. Certificate of Excellence">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-event">Course / Event Name *</label>
+                <input type="text" id="input-event" value="Advanced Cloud & AI Engineering" required placeholder="e.g. Full Stack Python Bootcamp">
+              </div>
+              <div class="form-group">
+                <label for="input-issuer">Authorized Issuer *</label>
+                <input type="text" id="input-issuer" value="DeepMind Developer Academy" required placeholder="e.g. Tech University">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-date">Issue Date</label>
+                <input type="date" id="input-date" required>
+              </div>
+              <div class="form-group">
+                <label for="input-description">Commendation Text (Optional)</label>
+                <input type="text" id="input-description" placeholder="e.g. Demonstrating exceptional project completion">
+              </div>
+            </div>
+
+            <div class="sub-section">
+              <div class="section-title-row">
+                <h3>2. Recipient List Input</h3>
+                <div class="input-mode-toggle">
+                  <button type="button" class="mode-btn active" data-mode="json" id="mode-json-btn">JSON List</button>
+                  <button type="button" class="mode-btn" data-mode="csv" id="mode-csv-btn">CSV Upload</button>
+                </div>
+              </div>
+
+              <!-- JSON Mode -->
+              <div id="mode-json-container">
+                <p class="field-hint">Specify an array of recipient objects with <code>recipient_name</code>, <code>recipient_email</code>, and optional metadata.</p>
+                <div class="editor-container">
+                  <textarea id="json-recipients-input" rows="9" spellcheck="false"></textarea>
+                </div>
+              </div>
+
+              <!-- CSV Mode -->
+              <div id="mode-csv-container" class="hidden">
+                <div class="upload-dropzone" id="csv-dropzone">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <h4>Drag and drop your CSV file here</h4>
+                  <p>Required columns: <code>recipient_name,recipient_email</code></p>
+                  <input type="file" id="csv-file-input" accept=".csv" class="hidden">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('csv-file-input').click()">Browse Computer</button>
+                  <div id="csv-selected-badge" class="badge-file hidden"></div>
+                </div>
+                <div class="helper-bar">
+                  <button type="button" class="text-link" id="btn-download-sample-csv">📥 Download Sample CSV Template</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-job">
+                <span class="btn-spinner hidden" id="spinner-submit"></span>
+                <span class="btn-text">Generate Certificates</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Right Side: Architecture & Features Card -->
+        <aside class="sidebar-cards">
+          <div class="card card-accent">
+            <h3>⚙️ System Architecture</h3>
+            <ul class="feature-checklist">
+              <li><strong>Asynchronous Queue:</strong> Immediate HTTP 202 response, non-blocking certificate rendering.</li>
+              <li><strong>Fault-Tolerant Isolation:</strong> Corrupted recipient entries do not block remaining participants.</li>
+              <li><strong>ReportLab Vector PDF:</strong> Sharp vector rendering with official seals and cryptographic verification codes.</li>
+              <li><strong>Batch ZIP Bundling:</strong> Automatic packaging for effortless distribution.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>Recent Generation Jobs</h3>
+            <div id="recent-jobs-list" class="recent-list">
+              <div class="empty-state-sm">No recent jobs found.</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- Tab 2: Monitor & Downloads -->
+    <section id="tab-monitor" class="tab-content">
+      <div id="no-active-job-msg" class="empty-state card">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <h3>No Job Selected</h3>
+        <p>Submit a new certificate generation batch or select an existing job from the list below.</p>
+        <button class="btn btn-primary" onclick="document.getElementById('tab-btn-generate').click()">Create Generation Job</button>
+      </div>
+
+      <div id="active-job-details" class="hidden">
+        <!-- Progress Summary Header -->
+        <div class="card job-summary-card">
+          <div class="job-header-row">
+            <div>
+              <span id="job-status-badge" class="status-badge status-pending">PENDING</span>
+              <h2 id="job-title-display">Machine Learning Masterclass</h2>
+              <p id="job-meta-display" class="job-meta">Issuer: ... | Date: ... | Job ID: ...</p>
+            </div>
+            <div class="job-actions">
+              <button id="btn-refresh-job" class="btn btn-secondary btn-sm" title="Refresh status">
+                🔄 Refresh Status
+              </button>
+              <a id="btn-download-zip" href="#" class="btn btn-success btn-sm disabled" title="Download ZIP Archive">
+                📦 Download All (ZIP)
+              </a>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-section">
+            <div class="progress-labels">
+              <span id="progress-percent-label">0% Complete</span>
+              <span id="progress-counts-label">0 / 0 Processed</span>
+            </div>
+            <div class="progress-track">
+              <div id="progress-fill-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Counters Grid -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-value" id="metric-total">0</div>
+              <div class="metric-label">Total Recipients</div>
+            </div>
+            <div class="metric-card metric-success">
+              <div class="metric-value" id="metric-success">0</div>
+              <div class="metric-label">Generated Successfully</div>
+            </div>
+            <div class="metric-card metric-failed">
+              <div class="metric-value" id="metric-failed">0</div>
+              <div class="metric-label">Failed / Erroneous</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value" id="metric-status">-</div>
+              <div class="metric-label">Processing State</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipient Table Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Batch Recipients & Certificates</h3>
+            <span class="badge" id="recipients-count-badge">0 items</span>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table" id="recipients-table">
+              <thead>
+                <tr>
+                  <th>Recipient Name</th>
+                  <th>Email</th>
+                  <th>Credential Code</th>
+                  <th>Status</th>
+                  <th>Error Details</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="recipients-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Verification -->
+    <section id="tab-verify" class="tab-content">
+      <div class="verify-container">
+        <div class="card">
+          <h2>Certificate Verification Portal</h2>
+          <p class="field-hint">Verify the authenticity of any credential issued by this system by entering its unique Credential ID.</p>
+          
+          <form id="verify-form" class="verify-form">
+            <div class="form-row">
+              <input type="text" id="verify-input-code" placeholder="e.g. CERT-2026-A1B2C3D4" required class="verify-input">
+              <button type="submit" class="btn btn-primary" id="btn-verify-submit">Verify Credential</button>
+            </div>
+          </form>
+
+          <div id="verify-result-card" class="verify-result hidden">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Bulk Certificate Generator &bull; Powered by FastAPI & ReportLab &bull; SQLite Relational Store</p>
+    </footer>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "title": "Certificate of Achievement",
+  "event_name": "Full Stack & Cloud Architecture Masterclass",
+  "issuer_name": "Tech Institute of Engineering",
+  "issue_date": "2026-10-07",
+  "description": "For demonstrating exceptional mastery of distributed backend systems.",
+  "recipients": [
+    {
+      "recipient_name": "Ada Lovelace",
+      "recipient_email": "ada@computing.org",
+      "custom_attributes": {
+        "track": "Algorithms",
+        "grade": "Distinction"
+      }
+    },
+    {
+      "recipient_name": "Alan Turing",
+      "recipient_email": "alan@enigma.org",
+      "custom_attributes": {
+        "track": "Theoretical Foundations",
+        "grade": "High Honors"
+      }
+    },
+    {
+      "recipient_name": "Margaret Hamilton",
+      "recipient_email": "margaret@apollo.nasa.gov",
+      "custom_attributes": {
+        "track": "Systems Reliability",
+        "grade": "Distinction"
+      }
+    }
+  ]
+}
